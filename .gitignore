@@ -1,0 +1,15 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/CodeChallenge/.vs/CodeChallenge
+/ApplicationCore/bin/Debug/netcoreapp3.1
+/ApplicationCore/obj
+/Domain/bin/Debug/netcoreapp3.1
+/Domain/obj
+/Infrastructure/bin/Debug/netcoreapp3.1
+/Infrastructure/obj
+/Infrastructure.UnitTests/bin/Debug/netcoreapp3.1
+/Infrastructure.UnitTests/obj
+/CodeChallenge/bin/Debug/netcoreapp3.1
+/CodeChallenge/obj
