@@ -11,12 +11,12 @@ namespace Infrastructure.UnitTests.Services
 {
     public class SortServiceTests
     {
-        private Mock<ILengthValidator> lengthValidatorMock = null!;
+        private Mock<IValidator> lengthValidatorMock = null!;
 
         [SetUp]
         public void Setup()
         {
-            lengthValidatorMock = new Mock<ILengthValidator>();
+            lengthValidatorMock = new Mock<IValidator>();
         }
 
         [Test]
@@ -27,14 +27,23 @@ namespace Infrastructure.UnitTests.Services
             var sortOrder = new[] { 4, 1, 2, 3 };
             lengthValidatorMock
                 .Setup(l => l.ValidateEqualLength(words, sortOrder))
-                .Returns(true);
+                .Returns(true)
+                .Verifiable();
+            lengthValidatorMock
+                .Setup(l => l.ValidateDuplicateValues(sortOrder))
+                .Returns(true)
+                .Verifiable();
+            lengthValidatorMock
+                .Setup(l => l.ValidateConsecutiveAndIncreasingSequentiality(sortOrder))
+                .Returns(true)
+                .Verifiable();
             var sortService = new SortService(lengthValidatorMock.Object);
 
             //Act
             var sortedWords = sortService.SortByPosition(words, sortOrder);
 
             //Assert
-            lengthValidatorMock.Verify(l => l.ValidateEqualLength(It.IsAny<IEnumerable<string>>(), It.IsAny<IEnumerable<int>>()), Times.Once);
+            lengthValidatorMock.VerifyAll();
             sortedWords.Should().BeEquivalentTo("Dempster", "Sonia", "Maria", "Wood");
         }
 
@@ -47,6 +56,10 @@ namespace Infrastructure.UnitTests.Services
             lengthValidatorMock
                .Setup(l => l.ValidateEqualLength(words, sortOrder))
                .Returns(true);
+            lengthValidatorMock
+               .Setup(l => l.ValidateDuplicateValues(sortOrder))
+               .Returns(false)
+               .Verifiable();
             var sortService = new SortService(lengthValidatorMock.Object);
 
             //Act
@@ -58,14 +71,23 @@ namespace Infrastructure.UnitTests.Services
         }
 
         [Test]
-        public void ShouldThrowOutOfRangeExceptionGivenValuesOutsideOfRange()
+        public void ShouldThrowNonSequentialCollectionExceptionGivenANonSequentialCollection()
         {
             //Arrange
             var words = new[] { "Barcelona", "Real Madrid", "PSG", "Bayern", "Juventus" };
             var sortOrder = new[] { 1000, 2000, 3000, 4000, 5000 };
             lengthValidatorMock
-               .Setup(l => l.ValidateEqualLength(words, sortOrder))
-               .Returns(true);
+                .Setup(l => l.ValidateEqualLength(words, sortOrder))
+                .Returns(true)
+                .Verifiable();
+            lengthValidatorMock
+                .Setup(l => l.ValidateDuplicateValues(sortOrder))
+                .Returns(true)
+                .Verifiable();
+            lengthValidatorMock
+                .Setup(l => l.ValidateConsecutiveAndIncreasingSequentiality(sortOrder))
+                .Returns(false)
+                .Verifiable();
             var sortService = new SortService(lengthValidatorMock.Object);
 
             //Act
@@ -73,16 +95,19 @@ namespace Infrastructure.UnitTests.Services
             FluentActions
                 .Invoking(() => sortService.SortByPosition(words, sortOrder))
                 .Should()
-                .Throw<OutOfRangeException>();
+                .Throw<NonSequentialCollectionException>();
         }
 
         [Test]
         public void ShouldThrowWordAndPositionsMiscountExceptionGivenMorePositionsThanWords()
         {
             //Arrange
-            var sortService = new SortService(lengthValidatorMock.Object);
             var words = new[] { "Miami", "West Palm Beach" };
             var sortOrder = new[] { 3, 4, 2, 1 };
+            lengthValidatorMock
+               .Setup(l => l.ValidateEqualLength(words, sortOrder))
+               .Returns(false);
+            var sortService = new SortService(lengthValidatorMock.Object);
 
             //Act
             //Assert

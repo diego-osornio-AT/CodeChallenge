@@ -3,17 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using Application.Common.Interfaces;
 using Domain.Exceptions;
-using Infrastructure.Extensions;
 
 namespace Infrastructure.Services
 {
     public class SortService : ISortService
     {
-        private readonly ILengthValidator lengthValidator;
+        private readonly IValidator validator;
 
-        public SortService(ILengthValidator lengthValidator)
+        public SortService(IValidator validator)
         {
-            this.lengthValidator = lengthValidator ?? throw new ArgumentNullException("Length Validator is required");
+            this.validator = validator ?? throw new ArgumentNullException("Validator is required");
         }
 
         /// <summary>
@@ -28,8 +27,8 @@ namespace Infrastructure.Services
         /// <exception cref="Domain.Exceptions.WordsAndPositionsMiscountException">
         /// Thrown when lengths from the words and positions are different
         /// </exception>
-        /// <exception cref="Domain.Exceptions.OutOfRangeException">
-        /// Thrown when index used to access the words array is greater or lower than the first or last position in the words array
+        /// <exception cref="Domain.Exceptions.NonSequentialCollectionException">
+        /// Thrown when positions collection is not sequential starting and 1 as minimum value and positions.Length as max value
         /// </exception>
         /// <exception cref="Domain.Exceptions.DuplicatedPositionException">
         /// Thrown when the same positions exists more than 1 in the positions parameter
@@ -42,37 +41,27 @@ namespace Infrastructure.Services
         /// </returns>
         public IEnumerable<string> SortByPosition(string[] words, int[] positions)
         {
-            if (!lengthValidator.ValidateEqualLength(words, positions))
-            {
-                throw new WordsAndPositionsMiscountException(words.Count(), positions.Count());
-            }
-
             if (words is null || positions is null)
             {
                 throw new NullReferenceException("Collection of words and positions are required");
             }
 
-            var sortedWords = new List<string>();
-            var positionsProcessed = new List<int>();
-
-            for (int index = 0; index < words.Count(); index++)
+            if (!validator.ValidateEqualLength(words, positions))
             {
-                var currentPosition = positions[index];
-                if (positionsProcessed.Contains(currentPosition))
-                {
-                    throw new DuplicatedPositionException(currentPosition);
-                }
-
-                if (!words.TryGetElement(currentPosition - 1, out string word))
-                {
-                    throw new OutOfRangeException(currentPosition);
-                }
-
-                sortedWords.Add(word);
-                positionsProcessed.Add(currentPosition);
+                throw new WordsAndPositionsMiscountException(words.Count(), positions.Count());
             }
 
-            return sortedWords;
+            if (!validator.ValidateDuplicateValues(positions))
+            {
+                throw new DuplicatedPositionException();
+            }
+
+            if (!validator.ValidateConsecutiveAndIncreasingSequentiality(positions))
+            {
+                throw new NonSequentialCollectionException();
+            }
+
+            return positions.Select(p => words[p - 1]);
         }
     }
 }

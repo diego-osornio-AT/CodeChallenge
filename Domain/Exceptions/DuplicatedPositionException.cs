@@ -8,7 +8,7 @@ namespace Domain.Exceptions
         /// Exception thrown when multiple positions are found in the sorting array
         /// </summary>
         /// <param name="position"></param>
-        public DuplicatedPositionException(int position) : base($"Duplicated position found : {position}")
+        public DuplicatedPositionException() : base($"Duplicated values found in the collection")
         { }
     }
 }
