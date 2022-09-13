@@ -13,3 +13,6 @@
 /Infrastructure.UnitTests/obj
 /CodeChallenge/bin/Debug/netcoreapp3.1
 /CodeChallenge/obj
+/Application/.vs/CodeChallenge
+/Application/bin/Debug/netcoreapp3.1
+/Application/obj
