@@ -10,7 +10,7 @@ This is a code challenge following the principles of Clean Architecture, OOP and
 
 # Getting Started
 
-Please open the Application/CodeChallenge.sln to get started and make sure to set it up as Startup Project
+Please open the src/ConsoleApp/CodeChallenge.sln to get started and make sure to set it up as Startup Project
 
 ## Overview
 
@@ -26,6 +26,6 @@ This layer contains all application logic. It is dependent on the domain layer, 
 
 This layer contains classes for accessing external resources such as file systems, web services, smtp, and so on. These classes should be based on interfaces defined within the application layer.
 
-### Application (Code Challenge Solution is here)
+### ConsoleApp (Code Challenge Solution is here)
 
 This layer is a console application using NET 3.1. This layer depends on both the Application and Infrastructure layers, however, the dependency on Infrastructure is only to support dependency injection. Therefore only *Program.cs* should reference Infrastructure.
